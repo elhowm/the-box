@@ -41,10 +41,6 @@ void loop() {
   while (Serial.available()) {
     command = Serial.readStringUntil('\n');
   };
-  
-  if (command != "") { updateState(command); };
-  command = "";
-
   digitalWrite(pin_vent, vent_state);
 }
 
@@ -59,7 +55,6 @@ void loadSensors() {
   hum = dht.readHumidity();
   temp = dht.readTemperature(false);
   wet = convertToPercent(analogRead(WETPIN));
-
   shareState();
 }
 
@@ -76,16 +71,9 @@ void updateState(String cmd) {
   
   if (name == "vent_") { vent_state = strToBool(value); }
   if (name == "hum__") { hum_state = strToBool(value); }
-  
-  Serial.println("name: " + name);
-  Serial.println("value: " + value);
-  
-  Serial.print(cmd);
-  Serial.println("~ - ");
 
-//  Serial.println("|");
   Serial.println(vent_state ? "true" : "false");
-  delay(1);
+  delay(1); // for stable 
 }
 
 // =============================HELPERS===================================
