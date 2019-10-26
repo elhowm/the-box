@@ -38,9 +38,13 @@ void setup() {
 
 void loop() {
   if (threadSensors.shouldRun()) { threadSensors.run(); }
+
   while (Serial.available()) {
     command = Serial.readStringUntil('\n');
   };
+
+  if (command != "") { updateState(command); };
+
   digitalWrite(pin_vent, vent_state);
 }
 
