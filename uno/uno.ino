@@ -19,6 +19,8 @@ const int pin_error = 9;
 bool vent_state = false;
 bool hum_state = false;
 
+String command = "";
+
 Thread threadSensors = Thread();
 
 void setup() {
@@ -36,7 +38,16 @@ void setup() {
 
 void loop() {
   if (threadSensors.shouldRun()) { threadSensors.run(); }
-  while (Serial.available()) { updateState(Serial.readString()); }
+  
+  command = ""
+    
+  while (Serial.available()) {
+    command = Serial.readStringUntil('\n');
+  };
+
+  if (command != "") { updateState(command); };
+  
+  digitalWrite(pin_vent, vent_state);
 }
 
 void shareState()
@@ -50,7 +61,6 @@ void loadSensors() {
   hum = dht.readHumidity();
   temp = dht.readTemperature(false);
   wet = convertToPercent(analogRead(WETPIN));
-
   shareState();
 }
 
@@ -63,16 +73,19 @@ int convertToPercent(int value) {
 void updateState(String cmd) {
   cmd.trim();
   String name = cmd.substring(0, 5);
-  String value = cmd.substring(6);
-
+  String value = cmd.substring(5);
+  
   if (name == "vent_") { vent_state = strToBool(value); }
-  if (name == "hum__") { vent_state = strToBool(value); }
+  if (name == "hum__") { hum_state = strToBool(value); }
+
+  Serial.println(vent_state ? "true" : "false");
+  delay(1); // for stable 
 }
 
 // =============================HELPERS===================================
 
 bool strToBool(String value) {
-  return((value == "1") ? true : false);
+  return(value.equals("1"));
 }
 
 long minutes(int count)
